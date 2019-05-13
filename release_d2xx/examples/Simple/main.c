@@ -131,7 +131,7 @@ int main()
                 gettimeofday(&now, NULL);
                 timersub(&now, &startTime, &elapsed);
 
-                if (elapsed.tv_sec > timeout)
+                if (elapsed.tv_sec > timeout
                 {
                     // We've waited too long.  Give up.
                     printf("\nTimed out after %ld seconds\n", elapsed.tv_sec);

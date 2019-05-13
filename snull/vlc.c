@@ -38,6 +38,8 @@
 #include <linux/in6.h>
 #include <asm/checksum.h>
 
+#include "ftd2xx.h"
+
 MODULE_AUTHOR("Alessandro Rubini, Jonathan Corbet");
 MODULE_LICENSE("Dual BSD/GPL");
 
@@ -202,31 +204,6 @@ static void snull_rx_ints(struct net_device *dev, int enable)
 }
 
     
-/*
- * Open and close
- */
-
-int snull_open(struct net_device *dev)
-{
-	/* request_region(), request_irq(), ....  (like fops->open) */
-
-	if(!ftdi_open()) {
-		printf("vlc: ftid open fail\n");
-	}
-
-	/* 
-	 * Assign the hardware address of the board: use "\0SNULx", where
-	 * x is 0 or 1. The first byte is '\0' to avoid being a multicast
-	 * address (the first byte of multicast addrs is odd).
-	 */
-
-	memcpy(dev->dev_addr, "\0SNUL0", ETH_ALEN);
-	if (dev == snull_devs[1])
-		dev->dev_addr[ETH_ALEN-1]++; /* \0SNUL1 */
-	netif_start_queue(dev);
-	return 0;
-}
-
 int ftdi_open() {
 	int        retCode = -1; // Assume failure
 	int        f = 0;
@@ -315,6 +292,32 @@ int ftdi_open() {
 		FT_Close(ftHandle);
 
 	return retCode;
+}
+
+
+/*
+ * Open and close
+ */
+
+int snull_open(struct net_device *dev)
+{
+	/* request_region(), request_irq(), ....  (like fops->open) */
+
+	if(!ftdi_open()) {
+		printf("vlc: ftid open fail\n");
+	}
+
+	/* 
+	 * Assign the hardware address of the board: use "\0SNULx", where
+	 * x is 0 or 1. The first byte is '\0' to avoid being a multicast
+	 * address (the first byte of multicast addrs is odd).
+	 */
+
+	memcpy(dev->dev_addr, "\0SNUL0", ETH_ALEN);
+	if (dev == snull_devs[1])
+		dev->dev_addr[ETH_ALEN-1]++; /* \0SNUL1 */
+	netif_start_queue(dev);
+	return 0;
 }
 
 int snull_release(struct net_device *dev)
