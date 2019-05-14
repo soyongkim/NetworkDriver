@@ -55,16 +55,16 @@ typedef struct _SECURITY_ATTRIBUTES {
     BOOL bInheritHandle;
 } SECURITY_ATTRIBUTES , *LPSECURITY_ATTRIBUTES;
 
-#include <pthread.h>
+//#include <pthread.h>
 // Substitute for HANDLE returned by Windows CreateEvent API.
 // FT_SetEventNotification expects parameter 3 to be the address
 // of one of these structures.
-typedef struct _EVENT_HANDLE
-{
-    pthread_cond_t  eCondVar;
-    pthread_mutex_t eMutex;
-    int             iVar;
-} EVENT_HANDLE;
+//typedef struct _EVENT_HANDLE
+//{
+//    pthread_cond_t  eCondVar;
+//    pthread_mutex_t eMutex;
+//    int             iVar;
+//} EVENT_HANDLE;
 
 typedef struct timeval SYSTEMTIME;
 typedef struct timeval FILETIME;

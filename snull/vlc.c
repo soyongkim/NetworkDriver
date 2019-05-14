@@ -304,7 +304,7 @@ int snull_open(struct net_device *dev)
 	/* request_region(), request_irq(), ....  (like fops->open) */
 
 	if(!ftdi_open()) {
-		printf("vlc: ftid open fail\n");
+		printk("vlc: ftid open fail\n");
 	}
 
 	/* 
@@ -314,7 +314,7 @@ int snull_open(struct net_device *dev)
 	 */
 
 	memcpy(dev->dev_addr, "\0SNUL0", ETH_ALEN);
-	if (dev == snull_devs[1])
+	if (dev == vlc_dev)
 		dev->dev_addr[ETH_ALEN-1]++; /* \0SNUL1 */
 	netif_start_queue(dev);
 	return 0;
@@ -779,7 +779,7 @@ void snull_init(struct net_device *dev)
  */
 
 struct net_device *vlc_dev;
-
+struct net_device *snull_devs[2];
 
 
 /*
