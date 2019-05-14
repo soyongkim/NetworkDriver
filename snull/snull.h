@@ -42,7 +42,7 @@
 /* Default timeout period */
 #define SNULL_TIMEOUT 5   /* In jiffies */
 
-extern struct net_device vlc_dev;
+extern struct net_device *snull_devs[];
 
 
 

@@ -38,8 +38,6 @@
 #include <linux/in6.h>
 #include <asm/checksum.h>
 
-#include "ftd2xx.h"
-
 MODULE_AUTHOR("Alessandro Rubini, Jonathan Corbet");
 MODULE_LICENSE("Dual BSD/GPL");
 
