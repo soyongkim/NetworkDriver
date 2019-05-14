@@ -569,7 +569,7 @@ static void snull_hw_tx(char *buf, int len, struct net_device *dev)
 	ih->check = 0;         /* and rebuild the checksum (ip needs it) */
 	ih->check = ip_fast_csum((unsigned char *)ih,ih->ihl);
 
-	if (dev == snull_devs[0])
+	if (dev == vlc_dev)
 		PDEBUGG("%08x:%05i --> %08x:%05i\n",
 				ntohl(ih->saddr),ntohs(((struct tcphdr *)(ih+1))->source),
 				ntohl(ih->daddr),ntohs(((struct tcphdr *)(ih+1))->dest));
@@ -583,7 +583,7 @@ static void snull_hw_tx(char *buf, int len, struct net_device *dev)
 	 * receive interrupt on the twin device, then  a
 	 * transmission-done on the transmitting device
 	 */
-	dest = snull_devs[dev == snull_devs[0] ? 1 : 0];
+	dest = vlc_dev;
 	priv = netdev_priv(dest);
 	tx_buffer = snull_get_tx_buffer(dev);
 	tx_buffer->datalen = len;
@@ -779,8 +779,6 @@ void snull_init(struct net_device *dev)
  */
 
 struct net_device *vlc_dev;
-struct net_device *snull_devs[2];
-
 
 /*
  * Finally, the module stuff
@@ -790,13 +788,10 @@ void snull_cleanup(void)
 {
 	int i;
     
-	for (i = 0; i < 2;  i++) {
-		if (snull_devs[i]) {
-			unregister_netdev(snull_devs[i]);
-			snull_teardown_pool(snull_devs[i]);
-			free_netdev(snull_devs[i]);
-		}
-	}
+	unregister_netdev(vlc_dev);
+	snull_teardown_pool(vlc_dev);
+	free_netdev(vlc_dev);
+
 	return;
 }
 
