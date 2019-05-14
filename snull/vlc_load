@@ -3,5 +3,5 @@
 export PATH=/sbin:/bin
 
 # Use a pathname, as new modutils don't look in the current dir by default
-insmod ./snull.ko $*
-ifconfig sn0 local1
+insmod ./vlc.ko $*
+#ifconfig vlc0 192.168.93.1

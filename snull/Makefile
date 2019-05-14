@@ -12,15 +12,29 @@ endif
 EXTRA_CFLAGS += $(DEBFLAGS)
 EXTRA_CFLAGS += -I..
 
+#EXTRA_CFLAGS += $(DEPENDENCIES) $(LINKER_OPTIONS) -L/usr/local/lib
+
 ifneq ($(KERNELRELEASE),)
 # call from kernel build system
 
-obj-m	:= snull.o
+obj-m	:= vlc.o
 
 else
 
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 PWD       := $(shell pwd)
+
+DEPENDENCIES := -lftd2xx -lpthread
+UNAME := $(shell uname)
+# Assume target is Mac OS if build host is Mac OS; any other host targets Linux
+ifeq ($(UNAME), Darwin)
+	DEPENDENCIES += -lobjc -framework IOKit -framework CoreFoundation
+else
+	DEPENDENCIES += -lrt
+endif
+# Embed in the executable a run-time path to libftd2xx
+LINKER_OPTIONS := -Wl,-rpath /usr/local/lib
+ccflags-y += $(DEPENDENCIES) $(LINKER_OPTIONS) -L/usr/local/lib
 
 default:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules

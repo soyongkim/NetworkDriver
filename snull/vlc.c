@@ -33,7 +33,7 @@
 #include <linux/tcp.h>         /* struct tcphdr */
 #include <linux/skbuff.h>
 
-#include "snull.h"
+#include "vlc.h"
 
 #include <linux/in6.h>
 #include <asm/checksum.h>
@@ -203,8 +203,15 @@ static void snull_rx_ints(struct net_device *dev, int enable)
 	priv->rx_int_enabled = enable;
 }
 
-    
-int ftdi_open() {
+
+/*
+ * Open and close
+ */
+
+int snull_open(struct net_device *dev)
+{
+	/* request_region(), request_irq(), ....  (like fops->open) */
+
 	int        retCode = -1; // Assume failure
 	int        f = 0;
 	FT_STATUS  ftStatus = FT_OK;
@@ -291,19 +298,7 @@ int ftdi_open() {
 	if (ftHandle != NULL)
 		FT_Close(ftHandle);
 
-	return retCode;
-}
-
-
-/*
- * Open and close
- */
-
-int snull_open(struct net_device *dev)
-{
-	/* request_region(), request_irq(), ....  (like fops->open) */
-
-	if(!ftdi_open()) {
+	if(retCode != 0) {
 		printk("vlc: ftid open fail\n");
 	}
 
@@ -313,7 +308,7 @@ int snull_open(struct net_device *dev)
 	 * address (the first byte of multicast addrs is odd).
 	 */
 
-	memcpy(dev->dev_addr, "\0SNUL0", ETH_ALEN);
+	memcpy(dev->dev_addr, "\0VLC0", ETH_ALEN);
 	if (dev == vlc_dev)
 		dev->dev_addr[ETH_ALEN-1]++; /* \0SNUL1 */
 	netif_start_queue(dev);
