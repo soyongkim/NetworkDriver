@@ -16,13 +16,11 @@
 
 int main(int argc, char **argv) {
 	int sockfd;
-	struct ifreq ifr;
+	//struct ifreq ifr;
 	struct sockaddr_in addr, recvaddr;
 	char sdata[MAXLEN];
-	char msg[MAXLEN];
-	int left_num;
-	int right_num;
 	socklen_t addrlen;
+	ssize_t comm_len;
 
 
 	if(argc != 2) {
@@ -31,12 +29,14 @@ int main(int argc, char **argv) {
 	}
 
 	if((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
+		perror("socket()");
+
 		return 1;
 	}
 
  	memset(&ifr, 0, sizeof(ifr));
  	snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "sl0");
-    	if (setsockopt(sockfd, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) < 0) {
+    if (setsockopt(sockfd, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) < 0) {
 		perror("if error");
 		return 1;   
    	}
@@ -48,20 +48,37 @@ int main(int argc, char **argv) {
 
 	while(1) {
 		printf("Payload:");
-		fgets(msg, MAXLEN-1, stdin);
-		if(strncmp(msg, "quit\n", 5) == 0) {
+		if(fgets(sdata, MAXLEN-1, stdin) == NULL) {
+			perror("fgets()");
+			return 1;
+		}
+
+		sdata[strlen(sdata) - 1] = 0;
+
+		if(strncmp(sdata, "quit", 5) == 0) {
 			break;
 		}
-		memset((void *)&sdata, 0x00, sizeof(sdata));
-		strncpy(sdata, msg, strlen(msg)-1);
 
 		addrlen = sizeof(addr);
-		sendto(sockfd, (void *)&sdata, strlen(sdata), 0, (struct sockaddr *)&addr, addrlen);
-		recvfrom(sockfd, (void *)&sdata, sizeof(sdata), 0, (struct sockaddr *)&recvaddr, &addrlen);
+		comm_len = sendto(sockfd, (void *)&sdata, sizeof(sdata), 0, (struct sockaddr *)&addr, addrlen);
+		if(comm_len == -1)
+		{
+			perror("sendto()");
+			return 1;
+		}
+
+		print("Sent %d Bytes to server\n", comm_len);
+
+		comm_len = recvfrom(sockfd, (void *)&sdata, sizeof(sdata), 0, (struct sockaddr *)&recvaddr, &addrlen);
+		if(comm_len == -1)
+		{
+			perror("recvfom()");
+			return 1;
+		}
 	
-		printf("Received Echo Msg from the Server: %s\n", sdata);
+		printf("Received %d Bytes from server, data: %s\n", comm_len, sdata);
 	}
-	
+
 	close(sockfd);
 	return 1;
 }
