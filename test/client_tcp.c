@@ -18,9 +18,14 @@ int main(int argc, char **argv)
     struct ifreq ifr;
 	int client_len;
 	char buf[MAXLINE];
-	int connect_chk;
-	int sockfd_chk;	
-	if(sockfd_chk = (server_sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+
+	if(argc != 2) {
+		printf("Usage : %s [ipaddress]\n", argv[0]);
+		return 1;
+	}
+
+
+	if(server_sockfd = socket(AF_INET, SOCK_STREAM, 0) == -1)
 	{
 		perror("error :");
 		return 1;
@@ -28,17 +33,19 @@ int main(int argc, char **argv)
 
  	memset(&ifr, 0, sizeof(ifr));
  	snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "sl0");
-    if (setsockopt(sockfd, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) < 0) {
+    if (setsockopt(server_sockfd, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) < 0) {
 		perror("if error");
 		return 1;   
    	}
 
+    memset((void *)&serveraddr, 0x00, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
-	serveraddr.sin_addr.s_addr = inet_addr("192.168.93.1");
+	serveraddr.sin_addr.s_addr = inet_addr(argv[1]);
 	serveraddr.sin_port = htons(3600);
-	
+
+    printf("Try Connect...\n");
 	client_len = sizeof(serveraddr);
-	if((connect_chk = connect(server_sockfd, (struct sockaddr *)&serveraddr, client_len)) == -1)
+	if(connect(server_sockfd, (struct sockaddr *)&serveraddr, client_len) == -1)
 	{
 		perror("connect error :");
 		return 1;

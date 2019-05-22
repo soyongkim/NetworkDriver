@@ -9,6 +9,8 @@
 #include <net/if.h>
 
 #define MAXBUF 1024
+#define PORT_NUM 3600
+
 int main(int argc, char **argv)
 {
 	int server_sockfd, client_sockfd;
@@ -17,15 +19,15 @@ int main(int argc, char **argv)
 	char buf[MAXBUF];
 	struct sockaddr_in clientaddr, serveraddr;
 	client_len = sizeof(clientaddr);
-	if((server_sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP )) == -1)
+	if((server_sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1)
 	{
 		perror("socket error :");
-		exit(0);
+		return 1;
 	}
 
  	memset(&ifr, 0, sizeof(ifr));
  	snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "sl0");
-    if (setsockopt(sockfd, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) < 0) {
+    if (setsockopt(server_sockfd, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) < 0) {
 		perror("if error");
 		return 1;   
    	}
@@ -33,11 +35,14 @@ int main(int argc, char **argv)
 	bzero(&serveraddr, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
 	serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serveraddr.sin_port = htons(atoi(argv[1]));
+	serveraddr.sin_port = htons(PORT_NUM);
 
-	bind(server_sockfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
+	if(bind(server_sockfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) == -1) {
+        perror("bind error");
+        return 1;
+    }
+    printf("Wait...\n");
 	listen(server_sockfd, 5);
-
 	while(1)
 	{
 		memset(buf, 0x00, MAXBUF);
