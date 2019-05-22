@@ -228,14 +228,14 @@ int snull_open(struct net_device *dev)
 	if (baudRate <= 0)
 		baudRate = 9600;
 		
-	printk("Trying FTDI device %d at %d baud.\n", portNum, baudRate);
+	printk(KERN_WARNING "Trying FTDI device %d at %d baud.\n", portNum, baudRate);
 	
 	ftStatus = FT_Open(portNum, &ftHandle);
 	if (ftStatus != FT_OK) 
 	{
-		printk("FT_Open(%d) failed, with error %d.\n", portNum, (int)ftStatus);
-		printk("Use lsmod to check if ftdi_sio (and usbserial) are present.\n");
-		printk("If so, unload them using rmmod, as they conflict with ftd2xx.\n");
+		printk(KERN_WARNING "FT_Open(%d) failed, with error %d.\n", portNum, (int)ftStatus);
+		printk(KERN_WARNING "Use lsmod to check if ftdi_sio (and usbserial) are present.\n");
+		printk(KERN_WARNING "If so, unload them using rmmod, as they conflict with ftd2xx.\n");
 		goto exit;
 	}
 
@@ -244,14 +244,14 @@ int snull_open(struct net_device *dev)
 	ftStatus = FT_ResetDevice(ftHandle);
 	if (ftStatus != FT_OK) 
 	{
-		printk("Failure.  FT_ResetDevice returned %d.\n", (int)ftStatus);
+		printk(KERN_WARNING "Failure.  FT_ResetDevice returned %d.\n", (int)ftStatus);
 		goto exit;
 	}
 	
 	ftStatus = FT_SetBaudRate(ftHandle, (ULONG)baudRate);
 	if (ftStatus != FT_OK) 
 	{
-		printk("Failure.  FT_SetBaudRate(%d) returned %d.\n", 
+		printk(KERN_WARNING "Failure.  FT_SetBaudRate(%d) returned %d.\n", 
 		       baudRate,
 		       (int)ftStatus);
 		goto exit;
@@ -263,7 +263,7 @@ int snull_open(struct net_device *dev)
 	                                     FT_PARITY_NONE);
 	if (ftStatus != FT_OK) 
 	{
-		printk("Failure.  FT_SetDataCharacteristics returned %d.\n", (int)ftStatus);
+		printk(KERN_WARNING "Failure.  FT_SetDataCharacteristics returned %d.\n", (int)ftStatus);
 		goto exit;
 	}
 	                          
@@ -271,7 +271,7 @@ int snull_open(struct net_device *dev)
 	ftStatus = FT_SetDtr(ftHandle);
 	if (ftStatus != FT_OK) 
 	{
-		printk("Failure.  FT_SetDtr returned %d.\n", (int)ftStatus);
+		printk(KERN_WARNING "Failure.  FT_SetDtr returned %d.\n", (int)ftStatus);
 		goto exit;
 	}
 
@@ -279,7 +279,7 @@ int snull_open(struct net_device *dev)
 	ftStatus = FT_SetFlowControl(ftHandle, FT_FLOW_RTS_CTS, 0, 0);
 	if (ftStatus != FT_OK) 
 	{
-		printk("Failure.  FT_SetFlowControl returned %d.\n", (int)ftStatus);
+		printk(KERN_WARNING "Failure.  FT_SetFlowControl returned %d.\n", (int)ftStatus);
 		goto exit;
 	}
 
@@ -287,7 +287,7 @@ int snull_open(struct net_device *dev)
 	ftStatus = FT_SetRts(ftHandle);
 	if (ftStatus != FT_OK) 
 	{
-		printk("Failure.  FT_SetRts returned %d.\n", (int)ftStatus);
+		printk(KERN_WARNING "Failure.  FT_SetRts returned %d.\n", (int)ftStatus);
 		goto exit;
 	}
 
@@ -299,7 +299,7 @@ int snull_open(struct net_device *dev)
 		FT_Close(ftHandle);
 
 	if(retCode != 0) {
-		printk("vlc: ftid open fail\n");
+		printk(KERN_WARNING "vlc: ftid open fail\n");
 	}
 
 	/* 
@@ -792,29 +792,29 @@ void snull_cleanup(void)
 
 
 
-
 int vlc_init_module(void)
 {
 	int result, i, ret = -ENOMEM;
 
 	snull_interrupt = use_napi ? snull_napi_interrupt : snull_regular_interrupt;
 
+	printk(KERN_ALERT "Hello VLC\n");
+
 	/* Allocate the devices */
 	vlc_dev = alloc_netdev(sizeof(struct snull_priv), "vlc%d", NET_NAME_UNKNOWN,
 			snull_init);
-
 	if (vlc_dev == NULL)
 		goto out;
 
 	ret = -ENODEV;
-	for (i = 0; i < 2;  i++)
-		if ((result = register_netdev(vlc_dev)))
-			printk("vlc: error %i registering device \"%s\"\n",
-					result, vlc_dev->name);
-		else
-			ret = 0;
+	if ((result = register_netdev(vlc_dev)))
+		printk("vlc: error %i registering device \"%s\"\n",
+				result, vlc_dev->name);
+	else
+		ret = 0;
+		
    out:
-	if (ret) 
+	if (ret)
 		snull_cleanup();
 	return ret;
 }

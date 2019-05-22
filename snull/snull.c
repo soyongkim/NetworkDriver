@@ -705,6 +705,8 @@ int snull_init_module(void)
 {
 	int result, i, ret = -ENOMEM;
 
+	printk(KERN_ALERT "Hello Snull\n");
+
 	snull_interrupt = use_napi ? snull_napi_interrupt : snull_regular_interrupt;
 
 	/* Allocate the devices */

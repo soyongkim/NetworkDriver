@@ -1,6 +1,9 @@
-# Comment/uncomment the following line to disable/enable debugging
-#DEBUG = y
+#
+# Makefile for the SLIP network device drivers.
+#
 
+#obj-$(CONFIG_SLIP) += slip.o
+#obj-$(CONFIG_SLHC) += slhc.o
 
 # Add your debugging flag (or not) to EXTRA_CFLAGS
 ifeq ($(DEBUG),y)
@@ -15,7 +18,8 @@ EXTRA_CFLAGS += -I..
 ifneq ($(KERNELRELEASE),)
 # call from kernel build system
 
-obj-m		:= snull.o
+obj-m		+= slip.o
+obj-y		+= slhc.o
 else
 
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
@@ -38,3 +42,4 @@ depend .depend dep:
 ifeq (.depend,$(wildcard .depend))
 include .depend
 endif
+

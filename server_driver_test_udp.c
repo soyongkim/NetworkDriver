@@ -17,18 +17,11 @@
 int main(int argc, char **argv) {
 	int sockfd;
 	struct ifreq ifr;
-	struct sockaddr_in addr, recvaddr;
-	char sdata[MAXLEN];
+	struct sockaddr_in addr, cliaddr;
+	char rdata[MAXLEN];
 	char msg[MAXLEN];
-	int left_num;
-	int right_num;
 	socklen_t addrlen;
 
-
-	if(argc != 2) {
-		printf("Usage : %s [ipaddress]\n", argv[0]);
-		return 1;
-	}
 
 	if((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
 		return 1;
@@ -46,20 +39,21 @@ int main(int argc, char **argv) {
 	addr.sin_addr.s_addr = inet_addr(argv[1]);
 	addr.sin_port = htons(PORT_NUM);
 
-	while(1) {
-		printf("Payload:");
-		fgets(msg, MAXLEN-1, stdin);
-		if(strncmp(msg, "quit\n", 5) == 0) {
-			break;
-		}
-		memset((void *)&sdata, 0x00, sizeof(sdata));
-		strncpy(sdata, msg, strlen(msg)-1);
-
-		addrlen = sizeof(addr);
-		sendto(sockfd, (void *)&sdata, strlen(sdata), 0, (struct sockaddr *)&addr, addrlen);
-		//recvfrom(sockfd, (void *)&sdata, sizeof(sdata), 0, (struct sockaddr *)&recvaddr, &addrlen);
-	
-		printf("Send Msg to VLC: %s\n", sdata);
+	addrlen = sizeof(addr);
+	if(bind(sockfd, (struct sockaddr *)&addr, addrlen) == -1) {
+		return 1;
 	}
+
+	while(1) {
+		printf("Wait...\n");
+		addrlen = sizeof(cliaddr);
+		recvfrom(sockfd, (void *)&rdata, sizeof(rdata), 0, (struct sockaddr *)&cliaddr, &addrlen);
+
+		printf("Received Data: %s\m", rdata)
+
+		sendto(sockfd, (void *)&rdata, sizeof(rdata), 0, (struct sockaddr *)&cliaddr, addrlen);
+	}
+	
 	close(sockfd);
+	return 1;
 }

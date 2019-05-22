@@ -1,0 +1,4 @@
+#!/bin/sh
+
+#/sbin/ifconfig vlc0 down
+/sbin/rmmod vlc

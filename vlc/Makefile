@@ -12,10 +12,13 @@ endif
 EXTRA_CFLAGS += $(DEBFLAGS)
 EXTRA_CFLAGS += -I..
 
+
 ifneq ($(KERNELRELEASE),)
 # call from kernel build system
 
-obj-m		:= snull.o
+obj-m		:= vlcif.o
+vlcif-objs	+= vlc.o libftd2xx.a
+
 else
 
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
@@ -29,7 +32,7 @@ endif
 
 
 clean:
-	rm -rf *.o *~ core .depend .*.cmd *.ko *.mod.c .tmp_versions Module.symvers modules.order
+	rm -rf *.o *~ core .depend .*.cmd *.ko *.+mod.c .tmp_versions Module.symvers modules.order
 
 depend .depend dep:
 	$(CC) $(EXTRA_CFLAGS) -M *.c > .depend
