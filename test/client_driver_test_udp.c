@@ -16,7 +16,7 @@
 
 int main(int argc, char **argv) {
 	int sockfd;
-	//struct ifreq ifr;
+	struct ifreq ifr;
 	struct sockaddr_in addr, recvaddr;
 	char sdata[MAXLEN];
 	socklen_t addrlen;
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
 			return 1;
 		}
 
-		print("Sent %d Bytes to server\n", comm_len);
+		printf("Sent %d Bytes to server\n", comm_len);
 
 		comm_len = recvfrom(sockfd, (void *)&sdata, sizeof(sdata), 0, (struct sockaddr *)&recvaddr, &addrlen);
 		if(comm_len == -1)
