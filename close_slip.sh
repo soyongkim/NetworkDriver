@@ -1,12 +1,9 @@
 #!/bin/bash
 
-ifconfig sl0 down
+sudo ifconfig sl0 down
 
 PID=`ps -eaf | grep slat | grep -v grep | awk '{print $2}'`
 if [[ "" !=  "$PID" ]]; then
-  echo "killing $PID"
-  kill -9 $PID
+	echo "killing $PID"
+	kill -9 $PID
 fi
-
-rmmod slip
-rmmod slhc
