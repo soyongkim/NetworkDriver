@@ -19,6 +19,7 @@ int main(int argc, char **argv)
     struct ifreq ifr;
 	socklen_t client_len;
 	char buf[MAXLINE];
+    int buf_len;
 
 	if(argc != 2) {
 		printf("Usage : %s [ipaddress]\n", argv[0]);
@@ -53,23 +54,34 @@ int main(int argc, char **argv)
 
     while(1) {
         printf("Payload:");
-        memset(buf, 0x00, MAXLINE);
-        read(0, buf, MAXLINE);
-        if(write(server_sockfd, buf, MAXLINE) <= 0)
+		if(fgets(buf, MAXLINE-1, stdin) == NULL) {
+			perror("fgets()");
+			return 1;
+		}
+
+        buf_len = strlen(buf);
+		buf[buf_len-1] = 0;
+
+		if(strncmp(buf, "quit", 5) == 0) {
+			break;
+		}
+
+        if(write(server_sockfd, buf, buf_len) <= 0)
         {
             perror("write error :");
             return 1;
         }
-        memset(buf, 0x00, MAXLINE);
+        memset(buf, 0x00, buf_len);
         if(read(server_sockfd, buf, MAXLINE) <= 0)
         {
             perror("read error :");
             return 1;
         }
+        else
+            printf("Echo: %s\n", buf);
     }
 
 	close(server_sockfd);
-	printf("read : %s", buf);
 	return 0;
 }
 

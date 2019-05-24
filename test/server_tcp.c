@@ -43,26 +43,27 @@ int main(int argc, char **argv)
     }
     printf("Wait...\n");
 	listen(server_sockfd, 5);
+
+	client_sockfd = accept(server_sockfd, (struct sockaddr *)&clientaddr, &client_len);
+	printf("New Client Connect: %s\n", inet_ntoa(clientaddr.sin_addr));
+
 	while(1)
 	{
-		memset(buf, 0x00, MAXBUF);
-		client_sockfd = accept(server_sockfd, (struct sockaddr *)&clientaddr, &client_len);
-		printf("New Client Connect: %s\n", inet_ntoa(clientaddr.sin_addr));
+		memset(buf, 0x00, MAXBUF);		
 		if((n = read(client_sockfd, buf, MAXBUF)) <= 0)
 		{
 			close(client_sockfd);
 			continue;
 		}
-		printf("%s", buf);
+		printf("Received: %s\n", buf);
 		if(write(client_sockfd, buf, MAXBUF) <= 0)
 		{
 			perror("write error: ");
 			close(client_sockfd);
 		
 		}
-		close(client_sockfd);
 	}
-
+    close(client_sockfd);
 	close(server_sockfd);
 	return 0;
 } 
