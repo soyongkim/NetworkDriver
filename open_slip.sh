@@ -7,4 +7,5 @@ else
 	slattach -p slip -s 115200 -L -m /dev/ttyVLC &
 	ifconfig sl0 192.168.93.$1
 	ifconfig
+	route add -net 192.168.93.0 netmask 255.255.255.0 dev sl0
 fi

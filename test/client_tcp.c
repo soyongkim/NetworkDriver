@@ -53,14 +53,15 @@ int main(int argc, char **argv)
 	}
 
     while(1) {
+        memset(buf, 0x00, MAXLINE);
         printf("Payload:");
 		if(fgets(buf, MAXLINE-1, stdin) == NULL) {
 			perror("fgets()");
 			return 1;
 		}
 
-        buf_len = strlen(buf);
-		buf[buf_len-1] = 0;
+        buf_len = strlen(buf)-1;
+		buf[buf_len] = 0;
 
 		if(strncmp(buf, "quit", 5) == 0) {
 			break;
@@ -71,14 +72,14 @@ int main(int argc, char **argv)
             perror("write error :");
             return 1;
         }
-        memset(buf, 0x00, buf_len);
+        memset(buf, 0x00, MAXLINE);
         if(read(server_sockfd, buf, MAXLINE) <= 0)
         {
             perror("read error :");
             return 1;
         }
         else
-            printf("Echo: %s\n", buf);
+            printf("Echo:%s\n", buf);
     }
 
 	close(server_sockfd);
